@@ -1,0 +1,8 @@
+name: SunLootManager
+version: '1.0.0'
+main: ru.loper.sunlootmanager.SunLootManager
+api-version: '1.16'
+commands:
+  lootmanager:
+    aliases:
+      - lm
