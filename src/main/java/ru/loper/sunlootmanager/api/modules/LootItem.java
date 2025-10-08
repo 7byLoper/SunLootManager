@@ -1,5 +1,6 @@
 package ru.loper.sunlootmanager.api.modules;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Material;
@@ -9,11 +10,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-@Getter
-@Setter
+@Data
 public class LootItem {
     private final String id;
-    private final ItemStack itemStack;
+    private ItemStack itemStack;
     private int chance; // 0-100%
     private int minAmount;
     private int maxAmount;

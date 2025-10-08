@@ -173,7 +173,7 @@ public class LootItemsMenu extends Menu {
             if (itemStack == null || itemStack.getType() == Material.AIR) return;
 
             String id = UUID.randomUUID().toString().substring(0, 8);
-            LootItem lootItem = new LootItem(id, itemStack.clone(), 100, 1, itemStack.getAmount());
+            LootItem lootItem = new LootItem(id, itemStack.clone().asOne(), 100, 1, itemStack.getAmount());
             loot.addItem(id, lootItem);
             event.setCancelled(true);
 

@@ -32,8 +32,8 @@ public class RemoveSubCommand implements SubCommand {
     @Override
     public List<String> onTabCompleter(CommandSender commandSender, String[] args) {
         if (args.length == 2) {
-            return Stream.of("<название>")
-                    .filter(line -> line.toLowerCase().startsWith(args[1].toLowerCase()))
+            return lootManager.getLootNames().stream()
+                    .filter(line -> line.toLowerCase().startsWith(args[2].toLowerCase()))
                     .toList();
         }
         return Collections.emptyList();
