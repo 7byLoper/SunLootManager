@@ -113,12 +113,17 @@ public class LootItemsMenu extends Menu {
                     case SHIFT_LEFT -> lootItem.addChance(10);
                     case SHIFT_RIGHT -> lootItem.takeChance(10);
                     case DROP -> loot.removeItem(lootItem.getId());
+                    case SWAP_OFFHAND -> player.getInventory().addItem(lootItem.getItemStack()).values().forEach(
+                            item -> player.getWorld().dropItemNaturally(player.getLocation(), item)
+                    );
                     case NUMBER_KEY -> {
                         int key = e.getHotbarButton();
                         switch (key) {
-                            case 0 -> lootItem.setAmountRange(lootItem.getMinAmount(), Math.max(lootItem.getMinAmount(), lootItem.getMaxAmount() - 1));
+                            case 0 ->
+                                    lootItem.setAmountRange(lootItem.getMinAmount(), Math.max(lootItem.getMinAmount(), lootItem.getMaxAmount() - 1));
                             case 1 -> lootItem.setAmountRange(lootItem.getMinAmount(), lootItem.getMaxAmount() + 1);
-                            case 2 -> lootItem.setAmountRange(Math.max(1, lootItem.getMinAmount() - 1), lootItem.getMaxAmount());
+                            case 2 ->
+                                    lootItem.setAmountRange(Math.max(1, lootItem.getMinAmount() - 1), lootItem.getMaxAmount());
                             case 3 -> lootItem.setAmountRange(lootItem.getMinAmount() + 1, lootItem.getMaxAmount());
                             default -> update = false;
                         }
