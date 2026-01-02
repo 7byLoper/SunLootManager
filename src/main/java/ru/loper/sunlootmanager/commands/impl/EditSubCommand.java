@@ -4,11 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import ru.loper.suncore.api.command.SubCommand;
+import ru.loper.suncore.utils.Colorize;
 import ru.loper.sunlootmanager.api.manager.LootManager;
 import ru.loper.sunlootmanager.api.modules.Loot;
 import ru.loper.sunlootmanager.config.LootConfigManager;
 import ru.loper.sunlootmanager.menu.LootItemsMenu;
-import ru.loper.suncore.utils.Colorize;
 
 import java.util.Collections;
 import java.util.List;

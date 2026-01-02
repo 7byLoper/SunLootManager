@@ -3,12 +3,11 @@ package ru.loper.sunlootmanager.commands.impl;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.command.CommandSender;
 import ru.loper.suncore.api.command.SubCommand;
-import ru.loper.sunlootmanager.api.manager.LootManager;
 import ru.loper.suncore.utils.Colorize;
+import ru.loper.sunlootmanager.api.manager.LootManager;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Stream;
 
 @RequiredArgsConstructor
 public class RemoveSubCommand implements SubCommand {

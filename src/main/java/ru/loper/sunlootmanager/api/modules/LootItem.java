@@ -1,13 +1,13 @@
 package ru.loper.sunlootmanager.api.modules;
 
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Data
@@ -18,7 +18,9 @@ public class LootItem {
     private int minAmount;
     private int maxAmount;
 
-    public LootItem(String id, ItemStack itemStack, int chance, int minAmount, int maxAmount) {
+    private Map<String, String> values;
+
+    public LootItem(String id, ItemStack itemStack, int chance, int minAmount, int maxAmount, Map<String, String> values) {
         if (itemStack == null) {
             throw new IllegalArgumentException("ItemStack cannot be null");
         }
@@ -35,6 +37,7 @@ public class LootItem {
         this.chance = chance;
         this.minAmount = minAmount;
         this.maxAmount = maxAmount;
+        this.values = values;
     }
 
     public LootItem(@NotNull ConfigurationSection section) {
@@ -43,8 +46,24 @@ public class LootItem {
                 section.getItemStack("item", new ItemStack(Material.AIR)),
                 section.getInt("chance", 100),
                 section.getInt("minAmount", 1),
-                section.getInt("maxAmount", 1)
+                section.getInt("maxAmount", 1),
+                getMapValues(section)
         );
+    }
+
+    private static Map<String, String> getMapValues(@NotNull ConfigurationSection section) {
+        ConfigurationSection valuesSection = section.getConfigurationSection("values");
+        Map<String, String> values = new HashMap<>();
+
+        if (valuesSection == null) {
+            return values;
+        }
+
+        for (String key : valuesSection.getKeys(false)) {
+            values.put(key, valuesSection.getString(key));
+        }
+
+        return values;
     }
 
     public boolean shouldDrop() {
@@ -71,6 +90,19 @@ public class LootItem {
         section.set("chance", chance);
         section.set("minAmount", minAmount);
         section.set("maxAmount", maxAmount);
+        section.set("values", values);
+    }
+
+    public void setValue(String key, String value) {
+        values.put(key, value);
+    }
+
+    public String getValue(String key) {
+        return values.get(key);
+    }
+
+    public boolean hasValue(String key) {
+        return values.containsKey(key);
     }
 
     public void addChance(int add) {

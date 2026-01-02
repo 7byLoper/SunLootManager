@@ -1,4 +1,4 @@
-title: '&8☰ Список доступных лутов'
+title: 'Список лутов'
 rows: 4
 
 loots-slots:
@@ -11,39 +11,40 @@ decor:
 
 loot_form:
   material: GRAY_SHULKER_BOX
-  display_name: '&7Лут: &f{loot}'
+  display_name: '&r '
   lore:
-    - '&8▪ Предметов: &f{items}'
+    - ' &#00d5fc&l&n┃&r &#d2d8d9Лут: &7{loot}'
+    - ' &#00d5fc&l┃&r &#d2d8d9Предметов: &7{items}'
     - ''
-    - '&e▶ ЛКМ: &7Редактировать'
-    - '&c✖ Q: &7Удалить'
+    - ' &#00d5fc&l&n┃&r &#d2d8d9Нажмите &#fc2222Q&#d2d8d9, чтобы'
+    - ' &#00d5fc&l┃&r &#d2d8d9удалить этот товар.'
+    - ''
+    - ' &#00d5fc▶ &#d2d8d9Нажмите ЛКМ, чтобы настроить'
 
 loot_change_form:
   material: GRAY_SHULKER_BOX
-  display_name: '&7Лут: &f{loot}'
+  display_name: '&r '
   lore:
-    - '&8▪ Предметов: &f{items}'
+    - ' &#00d5fc&l&n┃&r &#d2d8d9Лут: &7{loot}'
+    - ' &#00d5fc&l┃&r &#d2d8d9Предметов: &7{items}'
     - ''
-    - '&e▶ ЛКМ: &7Выбрать'
+    - ' &#00d5fc▶ &#d2d8d9Нажмите ЛКМ, чтобы настроить'
 
 items:
   next_page:
-    material: ARROW
-    display_name: '&6▶ Следующая страница'
-    lore:
-      - '&7Нажмите, чтобы перейти'
+    material: LIME_DYE
+    display_name: '&6Следующая страница ▶'
+    lore: []
     slot: 32
 
   back_page:
-    material: ARROW
-    display_name: '&6◀ Предыдущая страница'
-    lore:
-      - '&7Нажмите, чтобы вернуться'
+    material: GRAY_DYE
+    display_name: '&b◀ Предыдущая страница'
+    lore: []
     slot: 30
 
   create_loot:
-    material: PLAYER_HEAD
-    display_name: '&a➕ Создать новый лут'
-    lore:
-      - '&7Нажмите, чтобы создать'
+    material: NETHER_STAR
+    display_name: '&aСоздать новый лут'
+    lore: []
     slot: 31

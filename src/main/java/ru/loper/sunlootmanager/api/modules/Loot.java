@@ -19,6 +19,7 @@ public class Loot {
         this.name = name.toLowerCase();
         this.lootItems = new ConcurrentHashMap<>();
         this.config = new CustomConfig("loots/" + this.name, true, SunLootManager.getInstance());
+
         loadFromConfig();
     }
 
@@ -34,19 +35,20 @@ public class Loot {
         return Collections.unmodifiableCollection(lootItems.values());
     }
 
-    public List<ItemStack> generateLoot(int amount) {
-        List<ItemStack> result = new ArrayList<>();
+    public List<LootItem> generateLootItems(int amount) {
+        List<LootItem> result = new ArrayList<>();
 
         if (lootItems.isEmpty() || amount <= 0) {
             return result;
         }
 
         List<LootItem> items = new ArrayList<>(lootItems.values());
+        Collections.shuffle(items);
 
         for (int i = 0; i < amount; i++) {
             for (LootItem item : items) {
                 if (item.shouldDrop()) {
-                    result.add(item.getItemStackRandomAmount());
+                    result.add(item);
                 }
             }
         }
@@ -57,6 +59,22 @@ public class Loot {
 
         return result;
     }
+
+    public List<ItemStack> generateLoot(int amount) {
+        return generateLootItems(amount)
+                .stream()
+                .map(LootItem::getItemStackRandomAmount)
+                .toList();
+    }
+
+    public ItemStack generateLoot() {
+        return generateLoot(1).get(0);
+    }
+
+    public LootItem generateLootItem() {
+        return generateLootItems(1).get(0);
+    }
+
 
     public void save() {
         ConfigurationSection itemsSection = config.getConfig().createSection("items");

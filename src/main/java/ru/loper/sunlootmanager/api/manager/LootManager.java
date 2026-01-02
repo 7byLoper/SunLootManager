@@ -70,7 +70,7 @@ public class LootManager {
         loots.values().forEach(Loot::save);
     }
 
-    public Collection<Loot> getAllLoots(){
+    public Collection<Loot> getAllLoots() {
         return loots.values();
     }
 
@@ -78,5 +78,9 @@ public class LootManager {
         return getLoot(lootName)
                 .map(loot -> loot.generateLoot(amount))
                 .orElse(Collections.emptyList());
+    }
+
+    public ItemStack generateLoot(String lootName) {
+        return generateLoot(lootName, 1).getFirst();
     }
 }

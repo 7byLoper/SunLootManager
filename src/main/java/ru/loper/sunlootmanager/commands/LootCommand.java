@@ -21,6 +21,7 @@ public class LootCommand extends AdvancedSmartCommandExecutor {
         addSubCommand(new ReloadSubCommand(plugin.getConfigManager()), new Permission("lootmanager.command.reload"), "reload");
         addSubCommand(new GiveSubCommand(plugin.getLootManager()), new Permission("lootmanager.command.give"), "give");
         addSubCommand(new SwapSubCommand(plugin.getLootManager()), new Permission("lootmanager.command.swap"), "swap");
+        addSubCommand(new RandomPriceSubCommand(plugin.getLootManager()), new Permission("lootmanager.command.randomprice"), "randomprice");
     }
 
     @Override

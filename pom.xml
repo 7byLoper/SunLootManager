@@ -6,7 +6,7 @@
 
     <groupId>ru.loper</groupId>
     <artifactId>SunLootManager</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0-RELEASE</version>
     <packaging>jar</packaging>
 
     <name>SunLootManager</name>
@@ -74,7 +74,7 @@
         <dependency>
             <groupId>com.github.7byloper</groupId>
             <artifactId>SunCore</artifactId>
-            <version>1.0.4.0-RELEASE</version> <!-- Укажите актуальную версию -->
+            <version>1.0.4.1-RELEASE</version> <!-- Укажите актуальную версию -->
             <scope>provided</scope>
         </dependency>
         <dependency>

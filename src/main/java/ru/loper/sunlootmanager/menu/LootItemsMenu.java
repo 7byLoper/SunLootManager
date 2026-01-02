@@ -1,11 +1,12 @@
 package ru.loper.sunlootmanager.menu;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -17,24 +18,25 @@ import ru.loper.sunlootmanager.SunLootManager;
 import ru.loper.sunlootmanager.api.modules.Loot;
 import ru.loper.sunlootmanager.api.modules.LootItem;
 import ru.loper.sunlootmanager.config.LootConfigManager;
+import ru.loper.sunlootmanager.menu.buttons.LootItemButton;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
+@Data
+@EqualsAndHashCode(callSuper = true)
 public class LootItemsMenu extends Menu {
     private final List<Integer> slots;
     private final CustomConfig config;
     private final Loot loot;
-    private boolean back;
     private int page;
 
     public LootItemsMenu(Loot loot, Menu parent, LootConfigManager configManager) {
         setParent(parent);
-        config = configManager.getLootItemsMenuConfig();
-        slots = config.getConfig().getIntegerList("items_slots");
+        this.config = configManager.getLootItemsMenuConfig();
+        this.slots = config.getConfig().getIntegerList("items_slots");
         this.loot = loot;
-        back = true;
-        page = 0;
+        this.page = 0;
     }
 
     @Override
@@ -53,6 +55,7 @@ public class LootItemsMenu extends Menu {
             super.setParent(new LootsMenu(plugin.getLootManager(), plugin.getConfigManager()));
             return;
         }
+
         super.setParent(parent);
     }
 
@@ -67,13 +70,19 @@ public class LootItemsMenu extends Menu {
 
     private void addDecor() {
         ConfigurationSection decorSection = config.getConfig().getConfigurationSection("decor");
-        if (decorSection == null) return;
+        if (decorSection == null) {
+            return;
+        }
+
         addDecorFromSection(decorSection);
     }
 
     private void addBackButton() {
         ConfigurationSection buttonSection = config.getConfig().getConfigurationSection("items.back");
-        if (buttonSection == null) return;
+        if (buttonSection == null) {
+            return;
+        }
+
         addReturnButton(buttonSection.getInt("slot"), ItemBuilder.fromConfig(buttonSection));
     }
 
@@ -87,86 +96,91 @@ public class LootItemsMenu extends Menu {
             LootItem lootItem = lootItems.get(index + i);
             ItemBuilder builder = new ItemBuilder(lootItem.getItemStack());
             List<String> lore = builder.lore();
-            lore.addAll(loreTemplate.stream()
-                    .map(line -> line
-                            .replace("{chance}", String.valueOf(lootItem.getChance()))
-                            .replace("{min}", String.valueOf(lootItem.getMinAmount()))
-                            .replace("{max}", String.valueOf(lootItem.getMaxAmount()))
-                    ).toList());
+            lore.addAll(generateLootItemLore(loreTemplate, lootItem));
             builder.lore(lore);
 
             addLootItemButton(builder, slots.get(i), lootItem);
         }
     }
 
-    private void addLootItemButton(ItemBuilder builder, int slot, LootItem lootItem) {
-        buttons.add(new Button(builder.build(), slot) {
-            @Override
-            public void onClick(InventoryClickEvent e) {
-                if (!(e.getWhoClicked() instanceof Player player)) return;
+    private @NotNull List<String> generateLootItemLore(List<String> loreTemplate, LootItem lootItem) {
+        return loreTemplate.stream()
+                .map(line -> {
+                    if (line.contains("{values}")) {
+                        Map<String, String> values = lootItem.getValues();
 
-                boolean update = true;
-
-                switch (e.getClick()) {
-                    case LEFT -> lootItem.addChance(1);
-                    case RIGHT -> lootItem.takeChance(1);
-                    case SHIFT_LEFT -> lootItem.addChance(10);
-                    case SHIFT_RIGHT -> lootItem.takeChance(10);
-                    case DROP -> loot.removeItem(lootItem.getId());
-                    case SWAP_OFFHAND -> player.getInventory().addItem(lootItem.getItemStack()).values().forEach(
-                            item -> player.getWorld().dropItemNaturally(player.getLocation(), item)
-                    );
-                    case NUMBER_KEY -> {
-                        int key = e.getHotbarButton();
-                        switch (key) {
-                            case 0 ->
-                                    lootItem.setAmountRange(lootItem.getMinAmount(), Math.max(lootItem.getMinAmount(), lootItem.getMaxAmount() - 1));
-                            case 1 -> lootItem.setAmountRange(lootItem.getMinAmount(), lootItem.getMaxAmount() + 1);
-                            case 2 ->
-                                    lootItem.setAmountRange(Math.max(1, lootItem.getMinAmount() - 1), lootItem.getMaxAmount());
-                            case 3 -> lootItem.setAmountRange(lootItem.getMinAmount() + 1, lootItem.getMaxAmount());
-                            default -> update = false;
+                        if (values == null || values.isEmpty()) {
+                            return line.replace("{values}", "Отсутствует")
+                                    .replace("{date}", "");
                         }
-                    }
-                    default -> update = false;
-                }
 
-                if (update) update(player);
-            }
-        });
+                        List<String> valueLines = new ArrayList<>();
+                        for (Map.Entry<String, String> entry : values.entrySet()) {
+                            String valueLine = line
+                                    .replace("{values}", entry.getKey())
+                                    .replace("{date}", entry.getValue());
+                            valueLines.add(valueLine);
+                        }
+
+                        return String.join("\n", valueLines);
+                    }
+
+                    return line
+                            .replace("{chance}", String.valueOf(lootItem.getChance()))
+                            .replace("{min}", String.valueOf(lootItem.getMinAmount()))
+                            .replace("{max}", String.valueOf(lootItem.getMaxAmount()));
+                })
+                .flatMap(line -> Arrays.stream(line.split("\n")))
+                .collect(Collectors.toList());
+    }
+
+    private void addLootItemButton(ItemBuilder builder, int slot, LootItem lootItem) {
+        buttons.add(new LootItemButton(builder.build(), slot, lootItem, loot, this));
     }
 
     private void addNextPageButton() {
         int maxPages = (int) Math.ceil((double) loot.getItems().size() / slots.size());
-        if (page + 1 >= maxPages) return;
+        if (page + 1 >= maxPages) {
+            return;
+        }
 
         ConfigurationSection nextPageSection = config.getConfig().getConfigurationSection("items.next_page");
-        if (nextPageSection == null) return;
+        if (nextPageSection == null) {
+            return;
+        }
 
         buttons.add(new Button(ItemBuilder.fromConfig(nextPageSection).build(), nextPageSection.getInt("slot")) {
             @Override
-            public void onClick(InventoryClickEvent e) {
-                if (e.getWhoClicked() instanceof Player player) {
-                    page++;
-                    update(player);
+            public void onClick(InventoryClickEvent event) {
+                if (!(event.getWhoClicked() instanceof Player player)) {
+                    return;
                 }
+
+                page++;
+                show(player);
             }
         });
     }
 
     private void addBackPageButton() {
-        if (page == 0) return;
+        if (page == 0) {
+            return;
+        }
 
         ConfigurationSection backPageSection = config.getConfig().getConfigurationSection("items.back_page");
-        if (backPageSection == null) return;
+        if (backPageSection == null) {
+            return;
+        }
 
         buttons.add(new Button(ItemBuilder.fromConfig(backPageSection).build(), backPageSection.getInt("slot")) {
             @Override
-            public void onClick(InventoryClickEvent e) {
-                if (e.getWhoClicked() instanceof Player player) {
-                    page--;
-                    update(player);
+            public void onClick(InventoryClickEvent event) {
+                if (!(event.getWhoClicked() instanceof Player player)) {
+                    return;
                 }
+
+                page--;
+                show(player);
             }
         });
     }
@@ -175,30 +189,16 @@ public class LootItemsMenu extends Menu {
     public void onBottomInventoryClick(@NotNull InventoryClickEvent event) {
         if (event.getWhoClicked() instanceof Player player && event.getClick().equals(ClickType.LEFT)) {
             ItemStack itemStack = event.getCurrentItem();
-            if (itemStack == null || itemStack.getType() == Material.AIR) return;
+            if (itemStack == null || itemStack.getType() == Material.AIR) {
+                return;
+            }
 
             String id = UUID.randomUUID().toString().substring(0, 8);
-            LootItem lootItem = new LootItem(id, itemStack.clone().asOne(), 100, 1, itemStack.getAmount());
+            LootItem lootItem = new LootItem(id, itemStack.clone().asOne(), 100, 1, itemStack.getAmount(), new HashMap<>());
             loot.addItem(id, lootItem);
             event.setCancelled(true);
 
-            update(player);
+            show(player);
         }
-    }
-
-    public void update(@NotNull Player player) {
-        super.show(player);
-        back = false;
-    }
-
-    @Override
-    public void onClose(@NotNull InventoryCloseEvent event) {
-        if (!(event.getPlayer() instanceof Player player)) return;
-        if (getParent() == null) return;
-        if (!back) {
-            back = true;
-            return;
-        }
-        getParent().show(player);
     }
 }

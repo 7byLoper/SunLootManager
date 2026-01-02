@@ -3,8 +3,8 @@ package ru.loper.sunlootmanager.commands.impl;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.command.CommandSender;
 import ru.loper.suncore.api.command.SubCommand;
-import ru.loper.sunlootmanager.config.LootConfigManager;
 import ru.loper.suncore.utils.Colorize;
+import ru.loper.sunlootmanager.config.LootConfigManager;
 
 import java.util.Collections;
 import java.util.List;
