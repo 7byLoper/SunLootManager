@@ -60,6 +60,11 @@ public class LootItemsMenu extends Menu {
     }
 
     @Override
+    protected boolean cancelDropClick() {
+        return false;
+    }
+
+    @Override
     public void getItemsAndButtons() {
         addDecor();
         addBackButton();

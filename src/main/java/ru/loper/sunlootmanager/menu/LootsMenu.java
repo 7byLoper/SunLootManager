@@ -110,6 +110,11 @@ public class LootsMenu extends Menu {
         });
     }
 
+    @Override
+    protected boolean cancelDropClick() {
+        return false;
+    }
+
     private void addNextPageButton() {
         int total = lootManager.getAllLoots().size();
         int maxPages = (int) Math.ceil((double) total / config.getConfig().getIntegerList("loots-slots").size());

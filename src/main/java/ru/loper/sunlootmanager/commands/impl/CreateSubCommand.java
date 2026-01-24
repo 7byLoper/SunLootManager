@@ -36,6 +36,7 @@ public class CreateSubCommand implements SubCommand {
                     .filter(line -> line.toLowerCase().startsWith(args[1].toLowerCase()))
                     .toList();
         }
+
         return Collections.emptyList();
     }
 }
