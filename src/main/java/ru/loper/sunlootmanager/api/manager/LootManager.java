@@ -43,6 +43,7 @@ public class LootManager {
         if (loots.containsKey(name.toLowerCase())) {
             return false;
         }
+
         Loot loot = new Loot(name);
         loots.put(name.toLowerCase(), loot);
         return true;

@@ -6,9 +6,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.jetbrains.annotations.Nullable;
 import ru.loper.suncore.api.config.CustomConfig;
-import ru.loper.suncore.api.gui.Button;
-import ru.loper.suncore.api.gui.Menu;
-import ru.loper.suncore.api.items.ItemBuilder;
+import ru.loper.suncore.api.itemstack.ItemBuilder;
+import ru.loper.suncore.api.menu.button.Button;
+import ru.loper.suncore.api.menu.impl.AbstractMenu;
 import ru.loper.sunlootmanager.api.manager.LootManager;
 import ru.loper.sunlootmanager.api.modules.Loot;
 import ru.loper.sunlootmanager.config.LootConfigManager;
@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Getter
-public class LootsMenu extends Menu {
+public class LootsMenu extends AbstractMenu {
     protected final LootConfigManager configManager;
     protected final LootManager lootManager;
     protected final CustomConfig config;
@@ -80,7 +80,7 @@ public class LootsMenu extends Menu {
                             .replace("{items}", String.valueOf(loot.getItems().size())))
                     .toList());
 
-            buttons.add(new LootButton(builder.build(), slots.get(i), loot, this));
+            menuButtons.add(new LootButton(builder.build(), slots.get(i), loot, this));
         }
     }
 
@@ -94,7 +94,7 @@ public class LootsMenu extends Menu {
             return;
         }
 
-        buttons.add(new Button(ItemBuilder.fromConfig(section).build(), section.getInt("slot")) {
+        menuButtons.add(new Button(ItemBuilder.fromConfig(section).build(), section.getInt("slot")) {
             @Override
             public void onClick(InventoryClickEvent event) {
                 if (!(event.getWhoClicked() instanceof Player player)) {
@@ -127,7 +127,7 @@ public class LootsMenu extends Menu {
             return;
         }
 
-        buttons.add(new Button(ItemBuilder.fromConfig(section).build(), section.getInt("slot")) {
+        menuButtons.add(new Button(ItemBuilder.fromConfig(section).build(), section.getInt("slot")) {
             @Override
             public void onClick(InventoryClickEvent event) {
                 if (!(event.getWhoClicked() instanceof Player player)) {
@@ -150,7 +150,7 @@ public class LootsMenu extends Menu {
             return;
         }
 
-        buttons.add(new Button(ItemBuilder.fromConfig(section).build(), section.getInt("slot")) {
+        menuButtons.add(new Button(ItemBuilder.fromConfig(section).build(), section.getInt("slot")) {
             @Override
             public void onClick(InventoryClickEvent event) {
                 if (!(event.getWhoClicked() instanceof Player player)) {

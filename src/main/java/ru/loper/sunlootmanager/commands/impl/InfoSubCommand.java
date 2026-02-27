@@ -2,40 +2,44 @@ package ru.loper.sunlootmanager.commands.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.bukkit.command.CommandSender;
-import ru.loper.suncore.api.command.SubCommand;
-import ru.loper.suncore.utils.Colorize;
+import org.jetbrains.annotations.NotNull;
+import ru.loper.suncore.api.command.BuildableCommand;
+import ru.loper.suncore.api.command.register.SubCommandRegister;
 import ru.loper.sunlootmanager.api.manager.LootManager;
 import ru.loper.sunlootmanager.api.modules.Loot;
+import ru.loper.sunlootmanager.config.LootConfigManager;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
-public class InfoSubCommand implements SubCommand {
+@SubCommandRegister(permission = "lootmanager.command.info", aliases = "info")
+public class InfoSubCommand implements BuildableCommand {
     private final LootManager lootManager;
+    private final LootConfigManager configManager;
 
     @Override
-    public void onCommand(CommandSender commandSender, String[] args) {
+    public void handle(@NotNull CommandSender commandSender, String[] args) {
         if (args.length < 2) {
-            commandSender.sendMessage(Colorize.parse("&#FF5555▶ &7Использование: &f/loot info <название>"));
+            commandSender.sendMessage(configManager.getUsageInfoMessage());
             return;
         }
 
         Optional<Loot> optionalLoot = lootManager.getLoot(args[1]);
         if (optionalLoot.isEmpty()) {
-            commandSender.sendMessage(Colorize.parse("&#FF5555▶ &fЛут с таким названием &7отсутствует&f!"));
+            commandSender.sendMessage(configManager.getLootNotFoundMessage());
             return;
         }
 
         Loot loot = optionalLoot.get();
-        commandSender.sendMessage(Colorize.parse("&#FFAA00▶ &6Информация о луте:"));
-        commandSender.sendMessage(Colorize.parse("&#55FFFF▪ &fНазвание: &7" + loot.getName()));
-        commandSender.sendMessage(Colorize.parse("&#55FFFF▪ &fПредметов: &7" + loot.getItems().size()));
+        commandSender.sendMessage(configManager.getLootInfoHeaderMessage());
+        commandSender.sendMessage(configManager.getLootInfoNameMessage().replace("{name}", loot.getName()));
+        commandSender.sendMessage(configManager.getLootInfoItemsMessage().replace("{count}", String.valueOf(loot.getItems().size())));
     }
 
     @Override
-    public List<String> onTabCompleter(CommandSender commandSender, String[] args) {
+    public List<String> tabComplete(@NotNull CommandSender commandSender, String[] args) {
         if (args.length == 2) {
             return lootManager.getLootNames().stream()
                     .filter(line -> line.toLowerCase().startsWith(args[1].toLowerCase()))

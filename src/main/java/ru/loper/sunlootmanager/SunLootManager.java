@@ -26,9 +26,8 @@ public final class SunLootManager extends JavaPlugin {
 
         Bukkit.getPluginManager().registerEvents(new PlayerChatListener(), this);
 
-        Optional.ofNullable(getCommand("lootmanager"))
-                .orElseThrow(() -> new IllegalStateException("Command 'lootmanager' not found!"))
-                .setExecutor(new LootCommand(this));
+        new LootCommand(this)
+                .registerWrappers();
     }
 
     @Override

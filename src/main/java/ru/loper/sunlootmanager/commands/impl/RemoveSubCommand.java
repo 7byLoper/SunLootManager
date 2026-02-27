@@ -2,37 +2,41 @@ package ru.loper.sunlootmanager.commands.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.bukkit.command.CommandSender;
-import ru.loper.suncore.api.command.SubCommand;
-import ru.loper.suncore.utils.Colorize;
+import org.jetbrains.annotations.NotNull;
+import ru.loper.suncore.api.command.BuildableCommand;
+import ru.loper.suncore.api.command.register.SubCommandRegister;
 import ru.loper.sunlootmanager.api.manager.LootManager;
+import ru.loper.sunlootmanager.config.LootConfigManager;
 
 import java.util.Collections;
 import java.util.List;
 
 @RequiredArgsConstructor
-public class RemoveSubCommand implements SubCommand {
+@SubCommandRegister(permission = "lootmanager.command.remove", aliases = "remove")
+public class RemoveSubCommand implements BuildableCommand {
     private final LootManager lootManager;
+    private final LootConfigManager configManager;
 
     @Override
-    public void onCommand(CommandSender commandSender, String[] args) {
+    public void handle(@NotNull CommandSender commandSender, String[] args) {
         if (args.length < 2) {
-            commandSender.sendMessage(Colorize.parse("&#FF5555▶ &7Использование: &f/loot remove <название>"));
+            commandSender.sendMessage(configManager.getUsageRemoveMessage());
             return;
         }
 
         if (!lootManager.deleteLoot(args[1])) {
-            commandSender.sendMessage(Colorize.parse("&#FF5555▶ &fЛута с таким названием &7не существует&f!"));
+            commandSender.sendMessage(configManager.getLootNotFoundMessage());
             return;
         }
 
-        commandSender.sendMessage(Colorize.parse("&#55FF55▶ &fЛут &#55FF55" + args[1] + " &fуспешно удален!"));
+        commandSender.sendMessage(configManager.getLootDeletedMessage().replace("{name}", args[1]));
     }
 
     @Override
-    public List<String> onTabCompleter(CommandSender commandSender, String[] args) {
+    public List<String> tabComplete(@NotNull CommandSender commandSender, String[] args) {
         if (args.length == 2) {
             return lootManager.getLootNames().stream()
-                    .filter(line -> line.toLowerCase().startsWith(args[2].toLowerCase()))
+                    .filter(line -> line.toLowerCase().startsWith(args[1].toLowerCase()))
                     .toList();
         }
         return Collections.emptyList();

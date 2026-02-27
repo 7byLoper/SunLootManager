@@ -3,7 +3,7 @@ package ru.loper.sunlootmanager.menu.buttons;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
-import ru.loper.suncore.api.gui.Button;
+import ru.loper.suncore.api.menu.button.Button;
 import ru.loper.sunlootmanager.api.modules.Loot;
 import ru.loper.sunlootmanager.menu.LootItemsMenu;
 import ru.loper.sunlootmanager.menu.LootsMenu;

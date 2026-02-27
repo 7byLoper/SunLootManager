@@ -2,18 +2,21 @@ package ru.loper.sunlootmanager.commands.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.bukkit.command.CommandSender;
-import ru.loper.suncore.api.command.SubCommand;
+import org.jetbrains.annotations.NotNull;
+import ru.loper.suncore.api.command.BuildableCommand;
+import ru.loper.suncore.api.command.register.SubCommandRegister;
 import ru.loper.sunlootmanager.api.manager.LootManager;
 
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 @RequiredArgsConstructor
-public class RandomPriceSubCommand implements SubCommand {
+@SubCommandRegister(permission = "lootmanager.command.randomprice", aliases = "randomprice")
+public class RandomPriceSubCommand implements BuildableCommand {
     private final LootManager lootManager;
 
     @Override
-    public void onCommand(CommandSender commandSender, String[] args) {
+    public void handle(@NotNull CommandSender commandSender, String[] args) {
         lootManager.getAllLoots()
                 .forEach(loot ->
                         loot.getItems().forEach(lootItem ->
@@ -21,7 +24,7 @@ public class RandomPriceSubCommand implements SubCommand {
     }
 
     @Override
-    public List<String> onTabCompleter(CommandSender commandSender, String[] args) {
+    public List<String> tabComplete(@NotNull CommandSender commandSender, String[] args) {
         return List.of();
     }
 }

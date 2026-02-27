@@ -2,25 +2,27 @@ package ru.loper.sunlootmanager.commands.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.bukkit.command.CommandSender;
-import ru.loper.suncore.api.command.SubCommand;
-import ru.loper.suncore.utils.Colorize;
+import org.jetbrains.annotations.NotNull;
+import ru.loper.suncore.api.command.BuildableCommand;
+import ru.loper.suncore.api.command.register.SubCommandRegister;
 import ru.loper.sunlootmanager.config.LootConfigManager;
 
 import java.util.Collections;
 import java.util.List;
 
 @RequiredArgsConstructor
-public class ReloadSubCommand implements SubCommand {
+@SubCommandRegister(permission = "lootmanager.command.reload", aliases = "reload")
+public class ReloadSubCommand implements BuildableCommand {
     private final LootConfigManager configManager;
 
     @Override
-    public void onCommand(CommandSender commandSender, String[] args) {
+    public void handle(@NotNull CommandSender commandSender, String[] args) {
         configManager.reloadAll();
-        commandSender.sendMessage(Colorize.parse("&#55FF55▶ &fКонфигурация плагина успешно &7перезагружена&f!"));
+        commandSender.sendMessage(configManager.getConfigReloadedMessage());
     }
 
     @Override
-    public List<String> onTabCompleter(CommandSender commandSender, String[] args) {
+    public List<String> tabComplete(@NotNull CommandSender commandSender, String[] args) {
         return Collections.emptyList();
     }
 }

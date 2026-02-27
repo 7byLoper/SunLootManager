@@ -2,35 +2,41 @@ package ru.loper.sunlootmanager.commands.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.bukkit.command.CommandSender;
-import ru.loper.suncore.api.command.SubCommand;
-import ru.loper.suncore.utils.Colorize;
+import org.jetbrains.annotations.NotNull;
+import ru.loper.suncore.api.command.BuildableCommand;
+import ru.loper.suncore.api.command.register.SubCommandRegister;
 import ru.loper.sunlootmanager.api.manager.LootManager;
+import ru.loper.sunlootmanager.config.LootConfigManager;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 @RequiredArgsConstructor
-public class ListSubCommand implements SubCommand {
+@SubCommandRegister(permission = "lootmanager.command.list", aliases = "list")
+public class ListSubCommand implements BuildableCommand {
     private final LootManager lootManager;
+    private final LootConfigManager configManager;
 
     @Override
-    public void onCommand(CommandSender commandSender, String[] args) {
+    public void handle(@NotNull CommandSender commandSender, String[] args) {
         List<String> lootNames = new ArrayList<>(lootManager.getLootNames());
 
         if (lootNames.isEmpty()) {
-            commandSender.sendMessage(Colorize.parse("&#FFAA00▶ &fСозданные луты &7отсутствуют&f!"));
+            commandSender.sendMessage(configManager.getLootListEmptyMessage());
             return;
         }
 
-        commandSender.sendMessage(Colorize.parse("&#55FF55▶ &aСписок лутов &7(" + lootNames.size() + "):"));
+        commandSender.sendMessage(configManager.getLootListHeaderMessage().replace("{count}", String.valueOf(lootNames.size())));
         for (int i = 0; i < lootNames.size(); i++) {
-            commandSender.sendMessage(Colorize.parse("&#55FFFF" + (i + 1) + ". &7" + lootNames.get(i)));
+            commandSender.sendMessage(configManager.getLootListEntryMessage()
+                    .replace("{number}", String.valueOf(i + 1))
+                    .replace("{name}", lootNames.get(i)));
         }
     }
 
     @Override
-    public List<String> onTabCompleter(CommandSender commandSender, String[] args) {
+    public List<String> tabComplete(@NotNull CommandSender commandSender, String[] args) {
         return Collections.emptyList();
     }
 }

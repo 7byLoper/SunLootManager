@@ -4,10 +4,12 @@ import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import ru.loper.suncore.api.command.SubCommand;
-import ru.loper.suncore.utils.Colorize;
+import org.jetbrains.annotations.NotNull;
+import ru.loper.suncore.api.command.BuildableCommand;
+import ru.loper.suncore.api.command.register.SubCommandRegister;
 import ru.loper.sunlootmanager.api.manager.LootManager;
 import ru.loper.sunlootmanager.api.modules.Loot;
+import ru.loper.sunlootmanager.config.LootConfigManager;
 
 import java.util.Collections;
 import java.util.List;
@@ -15,25 +17,27 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 @RequiredArgsConstructor
-public class GiveSubCommand implements SubCommand {
+@SubCommandRegister(permission = "lootmanager.command.give", aliases = "give")
+public class GiveSubCommand implements BuildableCommand {
     private final LootManager lootManager;
+    private final LootConfigManager configManager;
 
     @Override
-    public void onCommand(CommandSender commandSender, String[] args) {
+    public void handle(@NotNull CommandSender commandSender, String[] args) {
         if (args.length < 4) {
-            commandSender.sendMessage(Colorize.parse("&#FF5555▶ &7Использование: &f/loot give <игрок> <название_лута> <кол-во>"));
+            commandSender.sendMessage(configManager.getUsageGiveMessage());
             return;
         }
 
         Player target = Bukkit.getPlayer(args[1]);
         if (target == null) {
-            commandSender.sendMessage(Colorize.parse("&#FF5555▶ &fИгрок &7" + args[1] + " &fне найден или offline!"));
+            commandSender.sendMessage(configManager.getPlayerNotFoundMessage().replace("{player}", args[1]));
             return;
         }
 
         Optional<Loot> optionalLoot = lootManager.getLoot(args[2]);
         if (optionalLoot.isEmpty()) {
-            commandSender.sendMessage(Colorize.parse("&#FF5555▶ &fЛут с таким названием &7отсутствует&f!"));
+            commandSender.sendMessage(configManager.getLootNotFoundGiveMessage());
             return;
         }
 
@@ -43,15 +47,17 @@ public class GiveSubCommand implements SubCommand {
 
             loot.generateLoot(amount).forEach(item -> target.getInventory().addItem(item));
 
-            commandSender.sendMessage(Colorize.parse("&#55FF55▶ &fЛут &#55FF55" + loot.getName() + " &fвыдан игроку &7" + target.getName()));
-            target.sendMessage(Colorize.parse("&#55FF55▶ &fВы получили лут &#55FF55" + loot.getName()));
+            commandSender.sendMessage(configManager.getGiveSuccessMessage()
+                    .replace("{loot}", loot.getName())
+                    .replace("{player}", target.getName()));
+            target.sendMessage(configManager.getGiveReceivedMessage().replace("{loot}", loot.getName()));
         } catch (NumberFormatException e) {
-            commandSender.sendMessage(Colorize.parse("&#FF5555▶ &fНеверный формат числа '%s'".formatted(args[3])));
+            commandSender.sendMessage(configManager.getInvalidNumberFormatMessage().replace("{number}", args[3]));
         }
     }
 
     @Override
-    public List<String> onTabCompleter(CommandSender commandSender, String[] args) {
+    public List<String> tabComplete(@NotNull CommandSender commandSender, String[] args) {
         if (args.length == 2) {
             return Bukkit.getOnlinePlayers().stream()
                     .map(Player::getName)

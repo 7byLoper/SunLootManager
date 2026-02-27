@@ -11,9 +11,9 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.loper.suncore.api.config.CustomConfig;
-import ru.loper.suncore.api.gui.Button;
-import ru.loper.suncore.api.gui.Menu;
-import ru.loper.suncore.api.items.ItemBuilder;
+import ru.loper.suncore.api.itemstack.ItemBuilder;
+import ru.loper.suncore.api.menu.button.Button;
+import ru.loper.suncore.api.menu.impl.AbstractMenu;
 import ru.loper.sunlootmanager.SunLootManager;
 import ru.loper.sunlootmanager.api.modules.Loot;
 import ru.loper.sunlootmanager.api.modules.LootItem;
@@ -25,13 +25,13 @@ import java.util.stream.Collectors;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class LootItemsMenu extends Menu {
+public class LootItemsMenu extends AbstractMenu {
     private final List<Integer> slots;
     private final CustomConfig config;
     private final Loot loot;
     private int page;
 
-    public LootItemsMenu(Loot loot, Menu parent, LootConfigManager configManager) {
+    public LootItemsMenu(Loot loot, AbstractMenu parent, LootConfigManager configManager) {
         setParent(parent);
         this.config = configManager.getLootItemsMenuConfig();
         this.slots = config.getConfig().getIntegerList("items_slots");
@@ -49,14 +49,14 @@ public class LootItemsMenu extends Menu {
         return config.getConfig().getInt("rows", 4) * 9;
     }
 
-    public void setParent(Menu parent) {
+    public void setParent(AbstractMenu parent) {
         if (parent == null) {
             SunLootManager plugin = SunLootManager.getInstance();
-            super.setParent(new LootsMenu(plugin.getLootManager(), plugin.getConfigManager()));
+            parentMenu = new LootsMenu(plugin.getLootManager(), plugin.getConfigManager());
             return;
         }
 
-        super.setParent(parent);
+        parentMenu = parent;
     }
 
     @Override
@@ -140,7 +140,7 @@ public class LootItemsMenu extends Menu {
     }
 
     private void addLootItemButton(ItemBuilder builder, int slot, LootItem lootItem) {
-        buttons.add(new LootItemButton(builder.build(), slot, lootItem, loot, this));
+        menuButtons.add(new LootItemButton(builder.build(), slot, lootItem, loot, this));
     }
 
     private void addNextPageButton() {
@@ -154,7 +154,7 @@ public class LootItemsMenu extends Menu {
             return;
         }
 
-        buttons.add(new Button(ItemBuilder.fromConfig(nextPageSection).build(), nextPageSection.getInt("slot")) {
+        menuButtons.add(new Button(ItemBuilder.fromConfig(nextPageSection).build(), nextPageSection.getInt("slot")) {
             @Override
             public void onClick(InventoryClickEvent event) {
                 if (!(event.getWhoClicked() instanceof Player player)) {
@@ -177,7 +177,7 @@ public class LootItemsMenu extends Menu {
             return;
         }
 
-        buttons.add(new Button(ItemBuilder.fromConfig(backPageSection).build(), backPageSection.getInt("slot")) {
+        menuButtons.add(new Button(ItemBuilder.fromConfig(backPageSection).build(), backPageSection.getInt("slot")) {
             @Override
             public void onClick(InventoryClickEvent event) {
                 if (!(event.getWhoClicked() instanceof Player player)) {

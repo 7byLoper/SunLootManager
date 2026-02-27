@@ -5,10 +5,12 @@ import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import ru.loper.suncore.api.command.SubCommand;
-import ru.loper.suncore.utils.Colorize;
+import org.jetbrains.annotations.NotNull;
+import ru.loper.suncore.api.command.BuildableCommand;
+import ru.loper.suncore.api.command.register.SubCommandRegister;
 import ru.loper.sunlootmanager.api.manager.LootManager;
 import ru.loper.sunlootmanager.api.modules.Loot;
+import ru.loper.sunlootmanager.config.LootConfigManager;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,18 +18,20 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @RequiredArgsConstructor
-public class SwapSubCommand implements SubCommand {
+@SubCommandRegister(permission = "lootmanager.command.swap", aliases = "swap")
+public class SwapSubCommand implements BuildableCommand {
     private final LootManager lootManager;
+    private final LootConfigManager configManager;
 
     @Override
-    public void onCommand(CommandSender commandSender, String[] args) {
+    public void handle(@NotNull CommandSender commandSender, String[] args) {
         if (args.length < 2) {
-            commandSender.sendMessage(Colorize.parse("&#FF5555▶ &fИспользование: &7/loot swap <название_лута|all>"));
+            commandSender.sendMessage(configManager.getUsageSwapMessage());
             return;
         }
 
         if (!(commandSender instanceof Player player)) {
-            commandSender.sendMessage(Colorize.parse("&#FF5555▶ &fДанная команда доступна только игрокам!"));
+            commandSender.sendMessage(configManager.getPlayerOnlyMessage());
             return;
         }
 
@@ -35,17 +39,17 @@ public class SwapSubCommand implements SubCommand {
         ItemStack secondItem = player.getInventory().getItemInMainHand();
 
         if (isInvalidItem(firstItem)) {
-            player.sendMessage(Colorize.parse("&#FF5555▶ &fДля замены предмета возьмите его во вторую руку!"));
+            player.sendMessage(configManager.getSwapInvalidOffhandMessage());
             return;
         }
 
         if (isInvalidItem(secondItem)) {
-            player.sendMessage(Colorize.parse("&#FF5555▶ &fВы не можете заменить предмет на воздух!"));
+            player.sendMessage(configManager.getSwapInvalidMainhandMessage());
             return;
         }
 
         if (firstItem.isSimilar(secondItem)) {
-            player.sendMessage(Colorize.parse("&#FF5555▶ &fПредметы для замены не должны быть одинаковыми!"));
+            player.sendMessage(configManager.getSwapSameItemMessage());
             return;
         }
 
@@ -55,7 +59,7 @@ public class SwapSubCommand implements SubCommand {
         if (amount > 0) {
             sendSuccessMessage(player, amount, targetLoot);
         } else {
-            player.sendMessage(Colorize.parse("&#FFAA00▶ &fПредмет &7%s &fне был найден в указанном луте.".formatted(getItemName(firstItem))));
+            player.sendMessage(configManager.getSwapItemNotFoundMessage().replace("{item}", getItemName(firstItem)));
         }
     }
 
@@ -83,7 +87,7 @@ public class SwapSubCommand implements SubCommand {
     private int swapSingleLoot(String lootName, ItemStack firstItem, ItemStack secondItem, Player player) {
         Loot loot = lootManager.getLoot(lootName).orElse(null);
         if (loot == null) {
-            player.sendMessage(Colorize.parse("&#FF5555▶ &fЛут с названием &7%s &fне существует!".formatted(lootName)));
+            player.sendMessage(configManager.getLootNotFoundMessage());
             return 0;
         }
 
@@ -92,10 +96,12 @@ public class SwapSubCommand implements SubCommand {
 
     private void sendSuccessMessage(Player player, int amount, String targetLoot) {
         String message = targetLoot.equalsIgnoreCase("all") ?
-                "&#55FF55▶ &fУспешно заменено &a%d &fпредметов во &aвсех &fлутах".formatted(amount) :
-                "&#55FF55▶ &fУспешно заменено &a%d &fпредметов в луте &a%s".formatted(amount, targetLoot);
+                configManager.getSwapSuccessAllMessage().replace("{amount}", String.valueOf(amount)) :
+                configManager.getSwapSuccessSingleMessage()
+                        .replace("{amount}", String.valueOf(amount))
+                        .replace("{loot}", targetLoot);
 
-        player.sendMessage(Colorize.parse(message));
+        player.sendMessage(message);
     }
 
     private String getItemName(ItemStack item) {
@@ -123,7 +129,7 @@ public class SwapSubCommand implements SubCommand {
     }
 
     @Override
-    public List<String> onTabCompleter(CommandSender commandSender, String[] args) {
+    public List<String> tabComplete(@NotNull CommandSender commandSender, String[] args) {
         if (args.length == 2) {
             List<String> completions = new ArrayList<>();
             completions.add("all");
