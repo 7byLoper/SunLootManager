@@ -82,6 +82,6 @@ public class LootManager {
     }
 
     public ItemStack generateLoot(String lootName) {
-        return generateLoot(lootName, 1).getFirst();
+        return generateLoot(lootName, 1).get(0);
     }
 }
