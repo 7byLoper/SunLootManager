@@ -80,8 +80,12 @@ public class LootsMenu extends AbstractMenu {
                             .replace("{items}", String.valueOf(loot.getItems().size())))
                     .toList());
 
-            menuButtons.add(new LootButton(builder.build(), slots.get(i), loot, this));
+            addLootButton(builder, slots, i, loot);
         }
+    }
+
+    protected void addLootButton(ItemBuilder builder, List<Integer> slots, int i, Loot loot) {
+        menuButtons.add(new LootButton(builder.build(), slots.get(i), loot, this));
     }
 
     public ConfigurationSection getLootFormSection() {
