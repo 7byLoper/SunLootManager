@@ -6,7 +6,7 @@
 
     <groupId>ru.loper</groupId>
     <artifactId>SunLootManager</artifactId>
-    <version>1.2.0-RELEASE</version>
+    <version>1.2.1-RELEASE</version>
     <packaging>jar</packaging>
 
     <name>SunLootManager</name>
