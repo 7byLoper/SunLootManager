@@ -8,8 +8,6 @@ import ru.loper.sunlootmanager.commands.LootCommand;
 import ru.loper.sunlootmanager.config.LootConfigManager;
 import ru.loper.sunlootmanager.listeners.PlayerChatListener;
 
-import java.util.Optional;
-
 @Getter
 public final class SunLootManager extends JavaPlugin {
     @Getter

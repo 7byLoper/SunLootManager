@@ -1,11 +1,11 @@
 package ru.loper.sunlootmanager.menu.buttons;
 
 import lombok.Getter;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import ru.loper.suncore.api.menu.button.Button;
+import ru.loper.suncore.api.scheduler.SchedulerServices;
 import ru.loper.sunlootmanager.SunLootManager;
 import ru.loper.sunlootmanager.api.modules.Loot;
 import ru.loper.sunlootmanager.api.modules.LootItem;
@@ -66,7 +66,7 @@ public class LootItemButton extends Button {
                 player.closeInventory();
                 SET_VALUES_PLAYERS.put(player.getName(), new PlayerValuesParts(lootItem, menu));
 
-                Bukkit.getScheduler().runTaskLater(SunLootManager.getInstance(), () -> SET_VALUES_PLAYERS.remove(player.getName()), 200L);
+                SchedulerServices.clientScheduler().runTaskLater(SunLootManager.getInstance(), () -> SET_VALUES_PLAYERS.remove(player.getName()), 200L);
                 update = false;
             }
             default -> update = false;
