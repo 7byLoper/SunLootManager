@@ -32,6 +32,5 @@ public class LootButton extends Button {
                 lootsMenu.show(player);
             }
         }
-
     }
 }

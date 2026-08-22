@@ -1,26 +1,28 @@
 package ru.loper.sunlootmanager.api.modules;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 import lombok.Data;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ThreadLocalRandom;
-
 @Data
 public class LootItem {
     private final String id;
     private ItemStack itemStack;
-    private int chance; // 0-100%
+
+    private int chance;
+
     private int minAmount;
     private int maxAmount;
 
     private Map<String, String> values;
 
-    public LootItem(String id, ItemStack itemStack, int chance, int minAmount, int maxAmount, Map<String, String> values) {
+    public LootItem(
+            String id, ItemStack itemStack, int chance, int minAmount, int maxAmount, Map<String, String> values) {
         if (itemStack == null) {
             throw new IllegalArgumentException("ItemStack cannot be null");
         }
@@ -47,8 +49,7 @@ public class LootItem {
                 section.getInt("chance", 100),
                 section.getInt("minAmount", 1),
                 section.getInt("maxAmount", 1),
-                getMapValues(section)
-        );
+                getMapValues(section));
     }
 
     private static Map<String, String> getMapValues(@NotNull ConfigurationSection section) {
@@ -71,8 +72,7 @@ public class LootItem {
     }
 
     public int getRandomAmount() {
-        return minAmount == maxAmount ? maxAmount :
-                ThreadLocalRandom.current().nextInt(minAmount, maxAmount + 1);
+        return minAmount == maxAmount ? maxAmount : ThreadLocalRandom.current().nextInt(minAmount, maxAmount + 1);
     }
 
     public ItemStack getItemStack() {

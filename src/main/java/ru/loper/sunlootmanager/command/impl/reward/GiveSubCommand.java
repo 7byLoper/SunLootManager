@@ -1,5 +1,9 @@
-package ru.loper.sunlootmanager.commands.impl;
+package ru.loper.sunlootmanager.command.impl.reward;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -9,35 +13,32 @@ import ru.loper.suncore.api.command.BuildableCommand;
 import ru.loper.suncore.api.command.register.SubCommandRegister;
 import ru.loper.sunlootmanager.api.manager.LootManager;
 import ru.loper.sunlootmanager.api.modules.Loot;
-import ru.loper.sunlootmanager.config.LootConfigManager;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Stream;
+import ru.loper.sunlootmanager.api.modules.LootItem;
+import ru.loper.sunlootmanager.config.message.Messages;
 
 @RequiredArgsConstructor
 @SubCommandRegister(permission = "lootmanager.command.give", aliases = "give")
 public class GiveSubCommand implements BuildableCommand {
     private final LootManager lootManager;
-    private final LootConfigManager configManager;
+    private final Messages messages;
 
     @Override
     public void handle(@NotNull CommandSender commandSender, String[] args) {
         if (args.length < 4) {
-            commandSender.sendMessage(configManager.getUsageGiveMessage());
+            messages.sendMessage(commandSender, messages.getUsageGiveMessage());
             return;
         }
 
         Player target = Bukkit.getPlayer(args[1]);
         if (target == null) {
-            commandSender.sendMessage(configManager.getPlayerNotFoundMessage().replace("{player}", args[1]));
+            messages.sendMessage(
+                    commandSender, messages.getPlayerNotFoundMessage().replace("{player}", args[1]));
             return;
         }
 
         Optional<Loot> optionalLoot = lootManager.getLoot(args[2]);
         if (optionalLoot.isEmpty()) {
-            commandSender.sendMessage(configManager.getLootNotFoundGiveMessage());
+            messages.sendMessage(commandSender, messages.getLootNotFoundGiveMessage());
             return;
         }
 
@@ -45,14 +46,35 @@ public class GiveSubCommand implements BuildableCommand {
             int amount = Integer.parseInt(args[3]);
             Loot loot = optionalLoot.get();
 
-            loot.generateLoot(amount).forEach(item -> target.getInventory().addItem(item));
+            loot.generateLootItems(amount).forEach(item -> giveLootItem(target, item));
 
-            commandSender.sendMessage(configManager.getGiveSuccessMessage()
-                    .replace("{loot}", loot.getName())
-                    .replace("{player}", target.getName()));
-            target.sendMessage(configManager.getGiveReceivedMessage().replace("{loot}", loot.getName()));
+            messages.sendMessage(
+                    commandSender,
+                    messages.getGiveSuccessMessage()
+                            .replace("{loot}", loot.getName())
+                            .replace("{player}", target.getName()));
+            messages.sendMessage(target, messages.getGiveReceivedMessage().replace("{loot}", loot.getName()));
         } catch (NumberFormatException e) {
-            commandSender.sendMessage(configManager.getInvalidNumberFormatMessage().replace("{number}", args[3]));
+            messages.sendMessage(
+                    commandSender, messages.getInvalidNumberFormatMessage().replace("{number}", args[3]));
+        }
+    }
+
+    private void giveLootItem(Player target, LootItem lootItem) {
+        target.getInventory().addItem(lootItem.getItemStackRandomAmount());
+
+        String command = lootItem.getValue("command");
+        if (command == null || command.isBlank()) {
+            return;
+        }
+
+        String parsedCommand = command.replace("{player}", target.getName()).trim();
+        if (parsedCommand.startsWith("/")) {
+            parsedCommand = parsedCommand.substring(1);
+        }
+
+        if (!parsedCommand.isBlank()) {
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), parsedCommand);
         }
     }
 

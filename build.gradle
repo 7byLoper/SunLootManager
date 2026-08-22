@@ -1,0 +1,64 @@
+plugins {
+    id 'java'
+    id 'maven-publish'
+}
+
+group = 'ru.loper'
+version = '1.2.2-RELEASE'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven {
+        name = 'papermc-repo'
+        url = 'https://repo.papermc.io/repository/maven-public/'
+    }
+    maven {
+        name = 'sonatype'
+        url = 'https://oss.sonatype.org/content/groups/public/'
+    }
+    maven {
+        name = 'jitpack'
+        url = 'https://jitpack.io'
+    }
+}
+
+dependencies {
+    compileOnly 'com.destroystokyo.paper:paper-api:1.16.5-R0.1-SNAPSHOT'
+    compileOnly 'com.github.7byloper.suncore-recode:core:1.0.8-RELEASE'
+
+    compileOnly 'org.projectlombok:lombok:1.18.38'
+    annotationProcessor 'org.projectlombok:lombok:1.18.38'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_16
+    targetCompatibility = JavaVersion.VERSION_16
+    withSourcesJar()
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release = 16
+}
+
+processResources {
+    def properties = [version: project.version]
+    inputs.properties(properties)
+    filteringCharset = 'UTF-8'
+    filesMatching('plugin.yml') {
+        expand(properties)
+    }
+}
+
+jar {
+    archiveBaseName = 'SunLootManager'
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+}

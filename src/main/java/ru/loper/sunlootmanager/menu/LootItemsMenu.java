@@ -1,5 +1,7 @@
 package ru.loper.sunlootmanager.menu;
 
+import java.util.*;
+import java.util.stream.Collectors;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.bukkit.Material;
@@ -19,9 +21,6 @@ import ru.loper.sunlootmanager.api.modules.Loot;
 import ru.loper.sunlootmanager.api.modules.LootItem;
 import ru.loper.sunlootmanager.config.LootConfigManager;
 import ru.loper.sunlootmanager.menu.buttons.LootItemButton;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -115,23 +114,20 @@ public class LootItemsMenu extends AbstractMenu {
                         Map<String, String> values = lootItem.getValues();
 
                         if (values == null || values.isEmpty()) {
-                            return line.replace("{values}", "Отсутствует")
-                                    .replace("{date}", "");
+                            return line.replace("{values}", "Отсутствует").replace("{date}", "");
                         }
 
                         List<String> valueLines = new ArrayList<>();
                         for (Map.Entry<String, String> entry : values.entrySet()) {
-                            String valueLine = line
-                                    .replace("{values}", entry.getKey())
-                                    .replace("{date}", entry.getValue());
+                            String valueLine =
+                                    line.replace("{values}", entry.getKey()).replace("{date}", entry.getValue());
                             valueLines.add(valueLine);
                         }
 
                         return String.join("\n", valueLines);
                     }
 
-                    return line
-                            .replace("{chance}", String.valueOf(lootItem.getChance()))
+                    return line.replace("{chance}", String.valueOf(lootItem.getChance()))
                             .replace("{min}", String.valueOf(lootItem.getMinAmount()))
                             .replace("{max}", String.valueOf(lootItem.getMaxAmount()));
                 })
@@ -199,7 +195,8 @@ public class LootItemsMenu extends AbstractMenu {
             }
 
             String id = UUID.randomUUID().toString().substring(0, 8);
-            LootItem lootItem = new LootItem(id, itemStack.clone().asOne(), 100, 1, itemStack.getAmount(), new HashMap<>());
+            LootItem lootItem =
+                    new LootItem(id, itemStack.clone().asOne(), 100, 1, itemStack.getAmount(), new HashMap<>());
             loot.addItem(id, lootItem);
             event.setCancelled(true);
 

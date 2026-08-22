@@ -1,17 +1,17 @@
 package ru.loper.sunlootmanager.api.modules;
 
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import lombok.Getter;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 import ru.loper.suncore.api.config.CustomConfig;
 import ru.loper.sunlootmanager.SunLootManager;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-
 public class Loot {
     private final Map<String, LootItem> lootItems;
     private final CustomConfig config;
+
     @Getter
     private final String name;
 
@@ -61,8 +61,7 @@ public class Loot {
     }
 
     public List<ItemStack> generateLoot(int amount) {
-        return generateLootItems(amount)
-                .stream()
+        return generateLootItems(amount).stream()
                 .map(LootItem::getItemStackRandomAmount)
                 .toList();
     }
@@ -74,7 +73,6 @@ public class Loot {
     public LootItem generateLootItem() {
         return generateLootItems(1).get(0);
     }
-
 
     public void save() {
         ConfigurationSection itemsSection = config.getConfig().createSection("items");

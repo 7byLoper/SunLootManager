@@ -1,5 +1,8 @@
 package ru.loper.sunlootmanager.menu;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import lombok.Getter;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
@@ -13,10 +16,6 @@ import ru.loper.sunlootmanager.api.manager.LootManager;
 import ru.loper.sunlootmanager.api.modules.Loot;
 import ru.loper.sunlootmanager.config.LootConfigManager;
 import ru.loper.sunlootmanager.menu.buttons.LootButton;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
 @Getter
 public class LootsMenu extends AbstractMenu {
@@ -121,7 +120,8 @@ public class LootsMenu extends AbstractMenu {
 
     private void addNextPageButton() {
         int total = lootManager.getAllLoots().size();
-        int maxPages = (int) Math.ceil((double) total / config.getConfig().getIntegerList("loots-slots").size());
+        int maxPages = (int) Math.ceil((double) total
+                / config.getConfig().getIntegerList("loots-slots").size());
         if (page + 1 >= maxPages) {
             return;
         }

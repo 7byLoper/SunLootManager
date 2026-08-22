@@ -1,36 +1,35 @@
-package ru.loper.sunlootmanager.commands.impl;
+package ru.loper.sunlootmanager.command.impl.management;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import ru.loper.suncore.api.command.BuildableCommand;
 import ru.loper.suncore.api.command.register.SubCommandRegister;
 import ru.loper.sunlootmanager.api.manager.LootManager;
-import ru.loper.sunlootmanager.config.LootConfigManager;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Stream;
+import ru.loper.sunlootmanager.config.message.Messages;
 
 @RequiredArgsConstructor
 @SubCommandRegister(permission = "lootmanager.command.create", aliases = "create")
 public class CreateSubCommand implements BuildableCommand {
     private final LootManager lootManager;
-    private final LootConfigManager configManager;
+    private final Messages messages;
 
     @Override
     public void handle(@NotNull CommandSender commandSender, String[] args) {
         if (args.length < 2) {
-            commandSender.sendMessage(configManager.getUsageCreateMessage());
+            messages.sendMessage(commandSender, messages.getUsageCreateMessage());
             return;
         }
 
         if (!lootManager.createLoot(args[1])) {
-            commandSender.sendMessage(configManager.getLootAlreadyExistsMessage());
+            messages.sendMessage(commandSender, messages.getLootAlreadyExistsMessage());
             return;
         }
 
-        commandSender.sendMessage(configManager.getLootCreatedMessage().replace("{name}", args[1]));
+        messages.sendMessage(commandSender, messages.getLootCreatedMessage().replace("{name}", args[1]));
     }
 
     @Override

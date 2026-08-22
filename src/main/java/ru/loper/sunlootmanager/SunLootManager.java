@@ -4,7 +4,7 @@ import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import ru.loper.sunlootmanager.api.manager.LootManager;
-import ru.loper.sunlootmanager.commands.LootCommand;
+import ru.loper.sunlootmanager.command.LootCommand;
 import ru.loper.sunlootmanager.config.LootConfigManager;
 import ru.loper.sunlootmanager.listeners.PlayerChatListener;
 
@@ -24,8 +24,7 @@ public final class SunLootManager extends JavaPlugin {
 
         Bukkit.getPluginManager().registerEvents(new PlayerChatListener(), this);
 
-        new LootCommand(this)
-                .registerWrappers();
+        new LootCommand(this).registerWrappers();
     }
 
     @Override

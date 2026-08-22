@@ -1,0 +1,5 @@
+.gradle/
+.gradle-bootstrap/
+.gradle-user/
+build/
+target/
