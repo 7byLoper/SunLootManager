@@ -8,6 +8,7 @@ import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -187,7 +188,48 @@ public class LootItemsMenu extends AbstractMenu {
     }
 
     @Override
+    public void onClick(@NotNull InventoryClickEvent event) {
+        if (isUnexpectedTopItem(event) && isTakeAction(event.getAction())) {
+            event.setCancelled(false);
+            return;
+        }
+
+        super.onClick(event);
+    }
+
+    private boolean isUnexpectedTopItem(InventoryClickEvent event) {
+        int slot = event.getRawSlot();
+        ItemStack current = event.getCurrentItem();
+        if (slot < 0 || slot >= getSize() || current == null || current.getType().isAir()) {
+            return false;
+        }
+
+        ItemStack configuredItem = menuItems.get(slot);
+        if (configuredItem != null && configuredItem.isSimilar(current)) {
+            return false;
+        }
+
+        return menuButtons.stream()
+                .filter(button -> button.getSlots().contains(slot))
+                .noneMatch(button -> button.getItemStack().isSimilar(current));
+    }
+
+    private boolean isTakeAction(InventoryAction action) {
+        return switch (action) {
+            case PICKUP_ALL, PICKUP_HALF, PICKUP_ONE, PICKUP_SOME,
+                    MOVE_TO_OTHER_INVENTORY, COLLECT_TO_CURSOR,
+                    HOTBAR_SWAP, HOTBAR_MOVE_AND_READD -> true;
+            default -> false;
+        };
+    }
+
+    @Override
     public void onBottomInventoryClick(@NotNull InventoryClickEvent event) {
+        if (event.isShiftClick()) {
+            event.setCancelled(true);
+            return;
+        }
+
         if (event.getWhoClicked() instanceof Player player && event.getClick().equals(ClickType.LEFT)) {
             ItemStack itemStack = event.getCurrentItem();
             if (itemStack == null || itemStack.getType() == Material.AIR) {
@@ -203,4 +245,5 @@ public class LootItemsMenu extends AbstractMenu {
             show(player);
         }
     }
+
 }
